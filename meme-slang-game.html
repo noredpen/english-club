@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meme Slang · No Red Pen</title>
+<style>
+  :root{--ink:#14110f;--yellow:#ffe14d;--paper:#fffdf5;--green:#38c172;--red:#ef4b4b}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--yellow);color:var(--ink);min-height:100vh;display:flex;justify-content:center;padding:20px 14px 40px;
+    background-image:radial-gradient(rgba(0,0,0,.09) 1.5px,transparent 1.6px);background-size:22px 22px}
+  .app{width:100%;max-width:520px}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .brand{font-weight:900;font-size:15px;letter-spacing:.06em;text-transform:uppercase;background:var(--ink);color:#fff;padding:6px 12px;border-radius:999px}
+  .brand s{color:#ff6b6b}
+  .score{font-weight:800;font-size:16px;background:var(--paper);border:3px solid var(--ink);border-radius:12px;padding:4px 12px;box-shadow:3px 3px 0 var(--ink)}
+  .dots{display:flex;gap:6px;margin-bottom:14px}
+  .dots i{flex:1;height:10px;border:2.5px solid var(--ink);border-radius:6px;background:var(--paper)}
+  .dots i.done{background:var(--green)}
+  .dots i.bad{background:var(--red)}
+  .dots i.now{background:var(--ink)}
+  .card{background:var(--paper);border:4px solid var(--ink);border-radius:22px;box-shadow:8px 8px 0 var(--ink);padding:14px}
+  .ask{font-weight:900;font-size:22px;line-height:1.2;margin:2px 4px 12px}
+  .ask small{display:block;font-weight:600;font-size:14px;color:#6b6258;margin-top:4px}
+  .pic{border:4px solid var(--ink);border-radius:14px;overflow:hidden;background:#ddd;aspect-ratio:4/3;position:relative}
+  .pic svg{width:100%;height:100%;display:block}
+  .pic.pop{animation:pop .35s ease}
+  @keyframes pop{0%{transform:scale(.92) rotate(-2deg);opacity:.2}100%{transform:none;opacity:1}}
+  .situation{font-size:14px;font-style:italic;color:#6b6258;text-align:center;margin-top:9px;line-height:1.35;padding:0 6px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .opt{font:inherit;font-weight:800;font-size:19px;padding:14px 8px;background:#fff;border:3.5px solid var(--ink);border-radius:14px;cursor:pointer;box-shadow:4px 4px 0 var(--ink);transition:transform .08s,box-shadow .08s,background .15s}
+  .opt:hover:not(:disabled){transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink);background:#fff7bf}
+  .opt:active:not(:disabled){transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+  .opt:disabled{cursor:default}
+  .opt.right{background:var(--green);color:#06210f}
+  .opt.wrong{background:var(--red);color:#fff;animation:shake .35s}
+  .opt.dim{opacity:.45}
+  @keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+  .fb{margin-top:14px;border:3.5px solid var(--ink);border-radius:14px;padding:12px 14px;background:#e8ffe9;display:none}
+  .fb.show{display:block;animation:pop .3s ease}
+  .fb.no{background:#ffe9e9}
+  .fb b{font-size:18px}
+  .fb p{margin-top:6px;line-height:1.4;font-size:16px}
+  .fb em{display:block;margin-top:8px;font-style:normal;font-weight:700;background:#fff;border:2.5px dashed var(--ink);border-radius:10px;padding:8px 10px}
+  .next{display:none;width:100%;margin-top:12px;font:inherit;font-weight:900;font-size:18px;padding:13px;background:var(--ink);color:#fff;border:none;border-radius:14px;cursor:pointer}
+  .next.show{display:block}
+  .next:hover{background:#2c2724}
+  .end{text-align:center;padding:10px 6px 4px}
+  .end .big{font-size:64px;font-weight:900;line-height:1}
+  .end h2{font-size:26px;margin:8px 0 6px}
+  .end p{font-size:17px;line-height:1.4;color:#4d453c}
+  .again{margin-top:16px;font:inherit;font-weight:900;font-size:18px;padding:13px 26px;background:var(--yellow);border:3.5px solid var(--ink);border-radius:14px;box-shadow:4px 4px 0 var(--ink);cursor:pointer}
+  .again:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+  .hidden{display:none!important}
+  @media (max-width:380px){.opt{font-size:17px}.ask{font-size:19px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">No <s>Red</s> Pen</div>
+    <div class="score">⭐ <span id="score">0</span></div>
+  </header>
+  <div class="dots" id="dots"></div>
+
+  <div class="card" id="game">
+    <div class="ask">Which word matches the picture?<small>Pick the slang word that fits the situation</small></div>
+    <div class="pic" id="pic"></div>
+    <div class="situation" id="sit"></div>
+    <div class="opts" id="opts"></div>
+    <div class="fb" id="fb"></div>
+    <button class="next" id="next">Next →</button>
+  </div>
+
+  <div class="card hidden" id="end">
+    <div class="end">
+      <div class="big" id="endEmoji">🔥</div>
+      <h2 id="endTitle"></h2>
+      <p id="endText"></p>
+      <button class="again" id="again">Play again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- рисуем героев ---------- */
+const SKIN='#f1bd94';
+const heart=(x,y,s,c='#e8344e')=>`<path transform="translate(${x} ${y}) scale(${s})" d="M0 7 C-22 -8 -12 -22 0 -11 C12 -22 22 -8 0 7Z" fill="${c}"/>`;
+const sparkle=(x,y,s,c='#fff')=>`<path transform="translate(${x} ${y}) scale(${s})" d="M0 -10 Q1.5 -1.5 10 0 Q1.5 1.5 0 10 Q-1.5 1.5 -10 0 Q-1.5 -1.5 0 -10Z" fill="${c}"/>`;
+
+const eyes={
+  wide:()=>`<ellipse cx="172" cy="140" rx="17" ry="20" fill="#fff" stroke="#14110f" stroke-width="3"/><ellipse cx="228" cy="140" rx="17" ry="20" fill="#fff" stroke="#14110f" stroke-width="3"/><circle cx="174" cy="144" r="5" fill="#14110f"/><circle cx="226" cy="144" r="5" fill="#14110f"/>`,
+  shades:()=>`<path d="M146 128h50v18q0 12-12 12h-26q-12 0-12-12z M204 128h50v18q0 12-12 12h-26q-12 0-12-12z" fill="#14110f"/><rect x="194" y="130" width="12" height="5" fill="#14110f"/><path d="M156 134l10-4M214 134l10-4" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/>`,
+  squint:()=>`<ellipse cx="172" cy="142" rx="17" ry="9" fill="#fff" stroke="#14110f" stroke-width="3"/><ellipse cx="228" cy="142" rx="17" ry="9" fill="#fff" stroke="#14110f" stroke-width="3"/><circle cx="181" cy="143" r="5" fill="#14110f"/><circle cx="237" cy="143" r="5" fill="#14110f"/><path d="M153 134h38M209 134h38" stroke="#14110f" stroke-width="5" stroke-linecap="round"/>`,
+  hearts:()=>heart(172,140,1.1)+heart(228,140,1.1),
+  flat:()=>`<ellipse cx="172" cy="142" rx="14" ry="10" fill="#fff" stroke="#14110f" stroke-width="3"/><ellipse cx="228" cy="142" rx="14" ry="10" fill="#fff" stroke="#14110f" stroke-width="3"/><circle cx="172" cy="144" r="4.5" fill="#14110f"/><circle cx="228" cy="144" r="4.5" fill="#14110f"/><path d="M156 134h32M212 134h32" stroke="#14110f" stroke-width="5" stroke-linecap="round"/>`,
+  tired:()=>`<ellipse cx="172" cy="152" rx="17" ry="7" fill="#9a7cb0" opacity=".6"/><ellipse cx="228" cy="152" rx="17" ry="7" fill="#9a7cb0" opacity=".6"/><ellipse cx="172" cy="142" rx="13" ry="9" fill="#fff" stroke="#14110f" stroke-width="3"/><ellipse cx="228" cy="142" rx="13" ry="9" fill="#fff" stroke="#14110f" stroke-width="3"/><circle cx="172" cy="145" r="3.5" fill="#14110f"/><circle cx="228" cy="145" r="3.5" fill="#14110f"/><path d="M156 138q16 -2 32 4M212 142q16 -6 32 -4" stroke="#14110f" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+  happy:()=>`<path d="M156 146q16 -26 32 0M212 146q16 -26 32 0" stroke="#14110f" stroke-width="6" fill="none" stroke-linecap="round"/>`,
+  swirl:()=>`<g fill="none" stroke="#14110f" stroke-width="3" stroke-linecap="round"><circle cx="172" cy="140" r="18" fill="#fff"/><path d="M172 140m0 0a3 3 0 1 1 3 3a7 7 0 1 1-8-8a11 11 0 1 1 13 13"/><circle cx="228" cy="140" r="18" fill="#fff"/><path d="M228 140m0 0a3 3 0 1 1 3 3a7 7 0 1 1-8-8a11 11 0 1 1 13 13"/></g>`
+};
+const mouths={
+  wavy:()=>`<path d="M172 204q7-10 14 0t14 0t14 0t14 0" stroke="#7a2e22" stroke-width="6" fill="none" stroke-linecap="round"/>`,
+  smirk:()=>`<path d="M176 200q26 12 52-8" stroke="#7a2e22" stroke-width="6" fill="none" stroke-linecap="round"/>`,
+  flat:()=>`<path d="M180 200h40" stroke="#7a2e22" stroke-width="6" stroke-linecap="round"/>`,
+  smile:()=>`<path d="M168 190q32 38 64 0z" fill="#7a2e22"/><path d="M174 192h52" stroke="#fff" stroke-width="7"/>`,
+  grin:()=>`<path d="M172 196q28 22 56 0" stroke="#7a2e22" stroke-width="6" fill="none" stroke-linecap="round"/>`,
+  meh:()=>`<path d="M180 202q20-6 40 0" stroke="#7a2e22" stroke-width="6" fill="none" stroke-linecap="round"/>`
+};
+const brows={
+  worry:()=>`<path d="M152 112l38 -12M248 112l-38 -12" stroke="#3a2418" stroke-width="8" stroke-linecap="round"/>`,
+  flat:()=>``,
+  sus:()=>`<path d="M154 116l36 0M212 98l38 12" stroke="#3a2418" stroke-width="8" stroke-linecap="round"/>`,
+  none:()=>``
+};
+function person({eye,mouth,brow='none',body='#3b4a6b',skin=SKIN,hair='#4a3022',extra=''}){
+  return `
+  <path d="M105 300Q112 236 200 230Q288 236 295 300Z" fill="${body}"/>
+  <rect x="178" y="205" width="44" height="34" rx="12" fill="${skin}"/>
+  <ellipse cx="200" cy="150" rx="74" ry="82" fill="${skin}" stroke="#14110f" stroke-width="3.5"/>
+  <path d="M128 140C122 78 168 58 204 62C244 58 282 84 272 140C262 108 240 96 214 100C190 112 160 108 146 96C134 108 130 122 128 140Z" fill="${hair}" stroke="#14110f" stroke-width="3.5" stroke-linejoin="round"/>
+  ${brows[brow]()}${eyes[eye]()}${mouths[mouth]()}${extra}`;
+}
+const bg=(a,b,extra='')=>`<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="400" height="300" fill="url(#g)"/>${extra}`;
+const wrap=s=>`<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+const drop=(x,y)=>`<path d="M${x} ${y}q-12 22 0 30q12 -8 0 -30z" fill="#8fd3f4" stroke="#14110f" stroke-width="2"/>`;
+
+/* ---------- сцены ---------- */
+const scenes={
+cooked:()=>wrap(
+  bg('#a62a12','#ffb02e',`
+  <circle cx="60" cy="60" r="40" fill="#3a1a10" opacity=".35"/><circle cx="345" cy="70" r="50" fill="#3a1a10" opacity=".35"/>
+  <path d="M0 300V210C20 180 30 215 50 170C70 215 90 190 105 230C120 200 130 230 140 300Z" fill="#e5431f"/>
+  <path d="M260 300C270 230 285 215 300 175C320 220 335 205 350 170C365 215 385 205 400 190V300Z" fill="#e5431f"/>
+  <path d="M20 300C28 260 45 245 60 225C75 255 90 255 105 300Z" fill="#ffd25a"/>
+  <path d="M310 300C318 265 332 255 348 232C362 260 378 262 392 300Z" fill="#ffd25a"/>`)+
+  person({eye:'wide',mouth:'wavy',brow:'worry',extra:drop(118,150)+drop(282,120)+`<ellipse cx="160" cy="190" rx="18" ry="9" fill="#6a4a3a" opacity=".4"/>`})),
+rizz:()=>wrap(
+  bg('#5b2a86','#ff7eb6',`${sparkle(60,60,1.6)}${sparkle(340,50,1.3)}${sparkle(330,200,1.8,'#ffe14d')}${sparkle(70,210,1.2,'#ffe14d')}`)+
+  heart(70,130,1.5)+heart(335,120,1.8)+heart(300,235,1.1,'#ff9db8')+heart(100,250,1.1,'#ff9db8')+
+  person({eye:'shades',mouth:'smirk',brow:'none',body:'#14110f',extra:`<path d="M262 250l12 -10l-4 16z" fill="#fff"/>`})),
+ghost:()=>wrap(
+  bg('#0f1d3a','#27406e',`<circle cx="60" cy="50" r="2.5" fill="#fff"/><circle cx="330" cy="40" r="2" fill="#fff"/><circle cx="360" cy="110" r="2.5" fill="#fff"/><circle cx="120" cy="30" r="2" fill="#fff"/>`)+
+  `<rect x="60" y="25" width="190" height="262" rx="26" fill="#0a0f1c" stroke="#8aa0c8" stroke-width="4"/>
+   <rect x="72" y="48" width="166" height="216" rx="12" fill="#e8edf7"/>
+   <rect x="83" y="64" width="110" height="30" rx="14" fill="#2f7cf6"/><text x="100" y="85" font-size="17" font-weight="700" fill="#fff" font-family="Inter,Arial">hey 👋</text>
+   <rect x="83" y="104" width="130" height="30" rx="14" fill="#2f7cf6"/><text x="100" y="125" font-size="17" font-weight="700" fill="#fff" font-family="Inter,Arial">u there?</text>
+   <rect x="83" y="144" width="86" height="30" rx="14" fill="#2f7cf6"/><text x="100" y="165" font-size="17" font-weight="700" fill="#fff" font-family="Inter,Arial">...?</text>
+   <text x="152" y="196" font-size="13" fill="#6b7a99" font-family="Inter,Arial" font-weight="600">Seen 14:02</text>
+   <path d="M306 276v-86q0-52 40-52t40 52v86l-13-13l-13 13l-14-13l-14 13z" fill="#fff" stroke="#14110f" stroke-width="3.5" opacity=".95"/>
+   <circle cx="332" cy="186" r="5" fill="#14110f"/><circle cx="360" cy="186" r="5" fill="#14110f"/><ellipse cx="346" cy="208" rx="7" ry="10" fill="#14110f"/>`),
+mid:()=>wrap(
+  bg('#cfc9bd','#a7a193',`<text x="285" y="70" font-size="40" font-weight="900" fill="#6e6a5e" font-family="Inter,Arial" transform="rotate(8 300 60)">5/10</text>
+   <path d="M20 270l90 -40l-18 -34z" fill="#e9c46a" stroke="#6e6a5e" stroke-width="3"/><circle cx="82" cy="228" r="6" fill="#b5533c"/><circle cx="60" cy="246" r="5" fill="#b5533c"/>`)+
+  person({eye:'flat',mouth:'meh',brow:'flat',body:'#7c8091'})),
+sus:()=>wrap(
+  bg('#2a0f1a','#b32d3d',`<circle cx="340" cy="60" r="30" fill="#ffd25a" opacity=".25"/>`)+
+  person({eye:'squint',mouth:'flat',brow:'sus',body:'#2b2f3d'})+
+  `<g transform="translate(278 190) rotate(-20)"><circle cx="0" cy="0" r="30" fill="#bfe6ff" fill-opacity=".45" stroke="#14110f" stroke-width="6"/><rect x="22" y="22" width="14" height="52" rx="6" fill="#14110f" transform="rotate(-25 22 22)"/></g>`),
+delulu:()=>wrap(
+  bg('#ffb5d6','#ffe1ef',`${heart(60,200,1.2,'#ff7aa8')}${heart(350,230,1.4,'#ff7aa8')}${sparkle(70,60,1.4,'#fff')}`)+
+  `<g transform="translate(262 20)"><ellipse cx="62" cy="52" rx="62" ry="46" fill="#fff" stroke="#14110f" stroke-width="3.5"/><circle cx="30" cy="112" r="9" fill="#fff" stroke="#14110f" stroke-width="3"/><circle cx="12" cy="134" r="5" fill="#fff" stroke="#14110f" stroke-width="3"/><text x="38" y="66" font-size="44" font-family="Inter,Arial">💍</text></g>`+
+  person({eye:'hearts',mouth:'grin',brow:'none',body:'#ff7aa8'})),
+grass:()=>wrap(
+  bg('#9fb0c4','#6f7f93',`<rect x="20" y="30" width="110" height="130" rx="8" fill="#bfe8ff" stroke="#14110f" stroke-width="4"/><rect x="20" y="115" width="110" height="45" fill="#3ec16b"/><circle cx="100" cy="62" r="18" fill="#ffd25a"/><path d="M75 30v130M20 95h110" stroke="#14110f" stroke-width="3"/>`)+
+  person({eye:'tired',mouth:'flat',brow:'flat',skin:'#e6cdb8',body:'#4a4f62'})+
+  `<rect x="222" y="228" width="58" height="40" rx="5" fill="#14110f" transform="rotate(-8 250 248)"/><rect x="228" y="233" width="46" height="30" rx="3" fill="#7fb0ff" transform="rotate(-8 250 248)"/>`),
+win:()=>wrap(
+  bg('#1c7a4a','#ffe14d',`${sparkle(60,60,1.6)}${sparkle(340,60,1.6)}${sparkle(40,200,1.2)}${sparkle(360,210,1.4)}
+   <rect x="70" y="40" width="9" height="16" fill="#ef4b4b" transform="rotate(20 70 40)"/><rect x="310" y="30" width="9" height="16" fill="#2f7cf6" transform="rotate(-30 310 30)"/><rect x="120" y="22" width="9" height="16" fill="#fff" transform="rotate(50 120 22)"/><rect x="270" y="80" width="9" height="16" fill="#ef4b4b" transform="rotate(10 270 80)"/><rect x="40" y="120" width="9" height="16" fill="#2f7cf6" transform="rotate(-20 40 120)"/><rect x="355" y="140" width="9" height="16" fill="#fff" transform="rotate(35 355 140)"/>`)+
+  person({eye:'happy',mouth:'smile',brow:'none',body:'#ef4b4b'})+
+  `<g transform="translate(262 170)"><path d="M10 0h52v30q0 26-26 30q-26 -4-26 -30z" fill="#ffd25a" stroke="#14110f" stroke-width="4"/><path d="M10 6q-16 0-14 18q2 10 14 12M62 6q16 0 14 18q-2 10-14 12" fill="none" stroke="#14110f" stroke-width="4"/><rect x="28" y="60" width="16" height="16" fill="#e0a800" stroke="#14110f" stroke-width="3"/><rect x="14" y="76" width="44" height="12" rx="3" fill="#14110f"/><text x="36" y="38" font-size="26" font-weight="900" text-anchor="middle" fill="#14110f" font-family="Inter,Arial">W</text></g>`),
+rot:()=>wrap(
+  bg('#2b1d4a','#6a3fa8',`${sparkle(50,50,1.1,'#ff6bd6')}${sparkle(350,70,1.4,'#6bf0ff')}${sparkle(330,230,1,'#ffe14d')}
+   <text x="42" y="150" font-size="34">📱</text><text x="320" y="150" font-size="30">🌀</text><text x="40" y="250" font-size="28">🎵</text><text x="330" y="260" font-size="30">💀</text><text x="64" y="90" font-size="26">🤪</text>`)+
+  person({eye:'swirl',mouth:'smile',brow:'none',skin:'#d9e6b8',body:'#3a3f5c'})+
+  `<rect x="242" y="196" width="46" height="74" rx="8" fill="#14110f" transform="rotate(12 265 233)"/><rect x="248" y="204" width="34" height="56" rx="4" fill="#ff6bd6" transform="rotate(12 265 233)"/>`)
+};
+
+/* ---------- вопросы ---------- */
+const Q=[
+ {s:'cooked', a:'Cooked', o:['Slay','Rizz','W'], c:"When the deadline is in one hour and you haven't started", def:'In big trouble. It is too late to fix it.', en:"I haven't studied at all. I'm cooked."},
+ {s:'rizz',   a:'Rizz',   o:['Mid','Sus','Salty'], c:'When he walks into the room and everyone looks at him', def:'Charm. The ability to attract people and flirt.', en:'He has so much rizz. Everyone likes him.'},
+ {s:'ghost',  a:'Ghosting', o:['Flex','Slay','Delulu'], c:'When you texted him three times and he only read the message', def:'Stopping all contact with someone without any explanation.', en:'We talked for a month and then he started ghosting me.'},
+ {s:'mid',    a:'Mid',    o:['W','Rizz','Cooked'], c:'When your friend says the movie was amazing, but it was just okay', def:'Not good, not bad. Just average or boring.', en:'The movie was mid. I forgot it right away.'},
+ {s:'sus',    a:'Sus',    o:['Slay','Delulu','Flex'], c:"When your friend says he was at home, but you don't believe him", def:'Short for "suspicious". Something feels wrong.', en:'His story sounds sus to me.'},
+ {s:'delulu', a:'Delulu', o:['Ghosting','Mid','Salty'], c:"When you think he loves you, but he doesn't know your name", def:'Short for "delusional". Believing something that is not real.', en:"She thinks he's in love with her. She's so delulu."},
+ {s:'grass',  a:'Touch grass', o:['Slay','W','Rizz'], c:"When you've been online for twelve hours and it's already dark", def:'Go outside. We say it to a person who spends too much time online.', en:"You've been online all day. Go touch grass."},
+ {s:'win',    a:'W',      o:['Cooked','Mid','Sus'], c:'When you finally get the job you wanted', def:'A win. Something good that happened. The opposite is "L".', en:'I got the job today. Big W!'},
+ {s:'rot',    a:'Brain rot', o:['Salty','Rizz','Touch grass'], c:'When you watched short videos for three hours and now you feel empty', def:'The feeling that your brain is tired from too much empty online content.', en:"Three hours of short videos? That's brain rot."}
+];
+
+/* ---------- игра ---------- */
+const $=id=>document.getElementById(id);
+let i=0,score=0,locked=false,order=[],res=[];
+const shuffle=a=>{a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a};
+
+function drawDots(){
+  $('dots').innerHTML=order.map((_,k)=>`<i class="${res[k]==='ok'?'done':res[k]==='no'?'bad':k===i?'now':''}"></i>`).join('');
+}
+function show(){
+  const q=order[i];locked=false;
+  const pic=$('pic');pic.innerHTML=scenes[q.s]();pic.classList.remove('pop');void pic.offsetWidth;pic.classList.add('pop');
+  $('opts').innerHTML='';
+  shuffle([q.a,...q.o]).forEach(w=>{
+    const b=document.createElement('button');b.className='opt';b.textContent=w;b.onclick=()=>pick(b,w);$('opts').appendChild(b);
+  });
+  $('fb').className='fb';$('fb').innerHTML='';$('next').className='next';
+  $('next').textContent=i===order.length-1?'See result →':'Next →';
+  $('sit').textContent=q.c;
+  drawDots();
+}
+function pick(btn,w){
+  if(locked)return;locked=true;
+  const q=order[i],ok=w===q.a;
+  document.querySelectorAll('.opt').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===q.a)b.classList.add('right');
+    else if(b===btn)b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+  if(ok){score++;$('score').textContent=score}
+  res[i]=ok?'ok':'no';
+  const f=$('fb');
+  f.className='fb show'+(ok?'':' no');
+  f.innerHTML=`<b>${ok?'Correct! 🎉':'Not quite! The right answer is green.'}</b><p><b>${q.a}</b> = ${q.def}</p><em>${q.en}</em>`;
+  $('next').classList.add('show');
+  drawDots();
+}
+$('next').onclick=()=>{ if(i<order.length-1){i++;show()} else finish() };
+function finish(){
+  $('game').classList.add('hidden');$('end').classList.remove('hidden');
+  const n=order.length,p=score/n;
+  let e,t,x;
+  if(p===1){e='🏆';t='You are a slang master!';x='You got every word right. Can your friends beat your score?'}
+  else if(p>=.7){e='🔥';t='Great job!';x='You already sound like a native speaker. Just a few more words to learn.'}
+  else if(p>=.4){e='😎';t='Not bad!';x='You know some of the words. Play again to learn the rest.'}
+  else{e='🌱';t='Keep going!';x='Slang is easy to learn. Play again and try to remember the words.'}
+  $('endEmoji').textContent=e;$('endTitle').textContent=`${score} / ${n} · ${t}`;$('endText').textContent=x;
+}
+function start(){
+  order=shuffle(Q);i=0;score=0;res=[];$('score').textContent=0;
+  $('end').classList.add('hidden');$('game').classList.remove('hidden');show();
+}
+$('again').onclick=start;
+start();
+</script>
+</body>
+</html>
